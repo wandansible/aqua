@@ -1,0 +1,7 @@
+---
+- name: Install aqua
+  ansible.builtin.include_tasks:
+    file: install.yml
+  loop: "{{ aqua_users }}"
+  loop_control:
+    label: "{{ item.username }}"

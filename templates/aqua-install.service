@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Install binaries from global aqua config file"
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/env $SHELL -c "{{ _aqua_bin_path.stdout }} install --all {{ aqua_global_install_args }}"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,201 @@
+---
+- name: Resolve aqua binary path
+  ansible.builtin.shell:
+    cmd: "echo ${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin/aqua"
+  changed_when: false
+  register: _aqua_bin_path
+  become: true
+  become_user: "{{ item.username }}"
+
+- name: Check for aqua binary
+  ansible.builtin.stat:
+    path: "{{ _aqua_bin_path.stdout }}"
+  register: _aqua_bin
+  become: true
+  become_user: "{{ item.username }}"
+
+- name: "Get GitHub release information"
+  run_once: true
+  delegate_to: localhost
+  delegate_facts: true
+  when:
+    - not _aqua_bin.stat.exists
+    - "'github_aqua_release_info' not in hostvars['localhost']['ansible_facts']"
+  block:
+    - name: "Get GitHub release information"
+      ansible.builtin.uri:
+        url: >-
+          {{ "https://api.github.com/repos/" + aqua_github_org + "/" + aqua_github_repo
+             + "/releases"
+             + ("/tags" if aqua_version != "latest" else "") + "/" + aqua_version }}
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+        headers: >-
+          {{ {"Authorization": "Bearer " + aqua_github_token}
+             if aqua_github_token != "" else {} }}
+      retries: 6
+      delay: 15
+      register: _release_info
+      check_mode: false
+
+    - name: Cache GitHub release information
+      ansible.builtin.set_fact:
+        github_aqua_release_info: "{{ _release_info.json }}"
+        cacheable: true
+
+- name: "Install aqua"
+  become: true
+  become_user: "{{ item.username }}"
+  vars:
+    _aqua_archive_url: >-
+      {{ hostvars["localhost"]["ansible_facts"]["github_aqua_release_info"].assets
+         | selectattr("name", "search", "aqua", ignorecase=true)
+         | selectattr("name", "search", "linux", ignorecase=true)
+         | selectattr("name", "search", aqua_arch_map[ansible_architecture], ignorecase=true)
+         | selectattr("name", "search", "\.tar.gz$")
+         | map(attribute='browser_download_url')
+         | first
+         | default(None) }}
+    _aqua_archive_filename: "{{ _aqua_archive_url | split('/') | last }}"
+    _aqua_checksum_url: >-
+      {{ hostvars["localhost"]["ansible_facts"]["github_aqua_release_info"].assets
+         | selectattr("name", "search", aqua_github_checksum_filename+"$")
+         | map(attribute='browser_download_url')
+         | first
+         | default(None) }}
+    _aqua_archive_checksum: >-
+      {{ lookup('url', _aqua_checksum_url, wantlist=True)
+         | select('search', "\s"+_aqua_archive_filename+"$")
+         | first | default('') | split(' ') | first | default(None) }}
+  when:
+    - aqua_install | bool
+    - not _aqua_bin.stat.exists
+  block:
+    - name: "Create temporary directory"
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: aqua
+      register: _aqua_tmp_dir
+
+    - name: "Download archive"
+      ansible.builtin.get_url:
+        url: "{{ _aqua_archive_url }}"
+        dest: "{{ _aqua_tmp_dir.path }}/{{ _aqua_archive_filename }}"
+        checksum: "{{ aqua_checksum_type }}:{{ _aqua_archive_checksum }}"
+        mode: u=rw,g=r,o=r
+      retries: 6
+      delay: 15
+
+    - name: "Extract files from archive"
+      ansible.builtin.unarchive:
+        src: "{{ _aqua_tmp_dir.path }}/{{ _aqua_archive_filename }}"
+        remote_src: true
+        dest: "{{ _aqua_tmp_dir.path }}"
+        extra_opts:
+          - "--wildcards"
+          - "--no-anchored"
+          - "aqua"
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: "Install aqua"
+      ansible.builtin.command:
+        cmd: >-
+          {{ _aqua_tmp_dir.path }}/aqua update-aqua {{ aqua_version if aqua_version != 'latest' }}
+      register: _aqua_update_aqua
+      changed_when: "_aqua_update_aqua.stderr | length >= 1"
+
+    - name: "Remove temporary directory"
+      ansible.builtin.file:
+        path: "{{ _aqua_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: Resolve shell
+  ansible.builtin.shell:
+    cmd: "echo $SHELL"
+  changed_when: false
+  register: _shell_cmd
+  become: true
+  become_user: "{{ item.username }}"
+
+- name: "Install binaries from global aqua config file"
+  ansible.builtin.shell:
+    cmd: "{{ _aqua_bin_path.stdout }} install --all {{ aqua_global_install_args }}"
+    executable: "{{ _shell_cmd.stdout }}"
+  become: true
+  become_user: "{{ item.username }}"
+  register: _aqua_global_install
+  changed_when: "_aqua_global_install.stderr | length >= 1"
+  when: aqua_global_install | bool
+
+- name: "Enable aqua update systemd timer"
+  become: true
+  become_user: "{{ item.username }}"
+  when: aqua_update_time != "never"
+  block:
+    - name: Create systemd user directory
+      ansible.builtin.file:
+        path: "~/.config/systemd/user/"
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Add aqua update service
+      ansible.builtin.template:
+        src: aqua-update.service
+        dest: "~/.config/systemd/user/aqua-update.service"
+        mode: u=rw,g=r,o=r
+      register: _service_file
+
+    - name: Add aqua update systemd timer
+      ansible.builtin.template:
+        src: aqua-update.timer
+        dest: "~/.config/systemd/user/aqua-update.timer"
+        mode: u=rw,g=r,o=r
+      register: _timer_file
+
+    - name: Start and enable aqua update systemd timer
+      ansible.builtin.systemd:
+        name: aqua-update.timer
+        daemon_reload: >-
+          {{ true if _service_file is changed or _timer_file is changed else false }}
+        scope: user
+        state: started
+        enabled: true
+
+- name: "Enable aqua global install systemd timer"
+  become: true
+  become_user: "{{ item.username }}"
+  when:
+    - aqua_global_install | bool
+    - aqua_global_install_time != "never"
+  block:
+    - name: Create systemd user directory
+      ansible.builtin.file:
+        path: "~/.config/systemd/user/"
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Add aqua global install service
+      ansible.builtin.template:
+        src: aqua-install.service
+        dest: "~/.config/systemd/user/aqua-install.service"
+        mode: u=rw,g=r,o=r
+      register: _service_file
+
+    - name: Add aqua global install systemd timer
+      ansible.builtin.template:
+        src: aqua-install.timer
+        dest: "~/.config/systemd/user/aqua-install.timer"
+        mode: u=rw,g=r,o=r
+      register: _timer_file
+
+    - name: Start and enable aqua global install systemd timer
+      ansible.builtin.systemd:
+        name: aqua-install.timer
+        daemon_reload: >-
+          {{ true if _service_file is changed or _timer_file is changed else false }}
+        scope: user
+        state: started
+        enabled: true

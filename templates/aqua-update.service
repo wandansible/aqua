@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Update aqua"
+
+[Service]
+Type=oneshot
+ExecStart={{ _aqua_bin_path.stdout }} update-aqua {{ aqua_version if aqua_version != 'latest' }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Install binaries from global aqua config file timer"
+
+[Timer]
+Unit=aqua-install.service
+OnCalendar={{ aqua_global_install_time }}
+{% if aqua_global_install_randomized_delay != "" %}
+RandomizedDelaySec={{ aqua_global_install_randomized_delay }}
+{% endif %}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

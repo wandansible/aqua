@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Update aqua timer"
+
+[Timer]
+Unit=aqua-update.service
+OnCalendar={{ aqua_update_time }}
+{% if aqua_update_randomized_delay != "" %}
+RandomizedDelaySec={{ aqua_update_randomized_delay }}
+{% endif %}
+Persistent=true
+
+[Install]
+WantedBy=timers.target
