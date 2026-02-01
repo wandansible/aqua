@@ -1,0 +1,98 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure aqua binary version manager
+    options:
+      aqua_arch_map:
+        description: |
+          Mapping of the possible values of ansible_architecture
+          to the aqua package architectures
+        type: dict
+
+      aqua_github_org:
+        description: Name of organisation for aqua github repository
+        type: str
+        default: aquaproj
+
+      aqua_github_repo:
+        description: Name of aqua github repository
+        type: str
+        default: aqua
+
+      aqua_github_token:
+        description: Optional bearer token to use to authenticate with api.github.com
+        type: str
+        default: ""
+
+      aqua_github_checksum_filename:
+        description: Filename for the aqua package checksums file on github
+        type: str
+        default: checksums.txt
+
+      aqua_checksum_type:
+        description: The aqua package checksum type
+        type: str
+        default: sha256
+
+      aqua_version:
+        description: Version to install (use "latest" for the latest version)
+        type: str
+        default: latest
+
+      aqua_install:
+        description: If true, install aqua
+        type: bool
+        default: true
+
+      aqua_update_time:
+        description: |
+          How often to update aqua, accepts a systemd time,
+          see https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html,
+          or "never"
+        type: str
+        default: "daily"
+
+      aqua_update_randomized_delay:
+        description: |
+          Delay the aqua update timer by a random time up
+          to this value or empty string for no delay
+        type: str
+        default: "6h"
+
+      aqua_global_install:
+        description: If true, install binaries from global aqua config file
+        type: str
+        default: "false"
+
+      aqua_global_install_args:
+        description: |
+          Extra arguments to use when installing binaries from global aqua config file
+        type: str
+        default: "--only-link"
+
+      aqua_global_install_time:
+        description: |
+          How often to install binaries from global aqua config file,
+          accepts a systemd time,
+          see https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html,
+          or "never"
+        type: str
+        default: "daily"
+
+      aqua_global_install_randomized_delay:
+        description: |
+          Delay the aqua global install timer by a random time up
+          to this value or empty string for no delay
+        type: str
+        default: "6h"
+
+      aqua_users:
+        description: List of user accounts to install aqua for
+        type: list
+        elements: dict
+        default: []
+        options:
+          username:
+            description: Name of the user account
+            type: str
+            required: true

@@ -1,0 +1,25 @@
+---
+galaxy_info:
+  namespace: wandansible
+  role_name: aqua
+  author: WAND Network Research Group
+  description: Install and configure aqua binary version manager
+
+  license: Apache-2.0
+
+  min_ansible_version: "2.17"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+        - trixie
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+  galaxy_tags: []
+
+dependencies: []
