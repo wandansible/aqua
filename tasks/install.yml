@@ -53,7 +53,7 @@
       {{ hostvars["localhost"]["ansible_facts"]["github_aqua_release_info"].assets
          | selectattr("name", "search", "aqua", ignorecase=true)
          | selectattr("name", "search", "linux", ignorecase=true)
-         | selectattr("name", "search", aqua_arch_map[ansible_architecture], ignorecase=true)
+         | selectattr("name", "search", aqua_arch_map[ansible_facts['architecture']], ignorecase=true)
          | selectattr("name", "search", "\.tar.gz$")
          | map(attribute='browser_download_url')
          | first
