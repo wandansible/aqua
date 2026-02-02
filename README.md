@@ -12,7 +12,7 @@ ENTRY POINT: *main* - Install and configure aqua binary version manager
 Options (= indicates it is required):
 
 - aqua_arch_map  Mapping of the possible values of
-                  ansible_architecture to the aqua package
+                  ansible_facts.architecture to the aqua package
                   architectures
           default: null
           type: dict
