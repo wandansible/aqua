@@ -5,7 +5,7 @@ argument_specs:
     options:
       aqua_arch_map:
         description: |
-          Mapping of the possible values of ansible_architecture
+          Mapping of the possible values of ansible_facts.architecture
           to the aqua package architectures
         type: dict
 
