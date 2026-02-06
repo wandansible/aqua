@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Remove unused binaries from global aqua config file timer"
+
+[Timer]
+Unit=aqua-vacuum.service
+OnCalendar={{ aqua_vacuum_time }}
+{% if aqua_vacuum_randomized_delay != "" %}
+RandomizedDelaySec={{ aqua_vacuum_randomized_delay }}
+{% endif %}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

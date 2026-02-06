@@ -86,6 +86,33 @@ argument_specs:
         type: str
         default: "6h"
 
+      aqua_vacuum:
+        description: If true, remove unused binaries from global aqua config file
+        type: str
+        default: "false"
+
+      aqua_vacuum_args:
+        description: |
+          Extra arguments to use when removing unused binaries from global aqua config file
+        type: str
+        default: ""
+
+      aqua_vacuum_time:
+        description: |
+          How often to remove unused binaries from global aqua config file,
+          accepts a systemd time,
+          see https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html,
+          or "never"
+        type: str
+        default: "daily"
+
+      aqua_vacuum_randomized_delay:
+        description: |
+          Delay the aqua vacuum timer by a random time up
+          to this value or empty string for no delay
+        type: str
+        default: "6h"
+
       aqua_users:
         description: List of user accounts to install aqua for
         type: list

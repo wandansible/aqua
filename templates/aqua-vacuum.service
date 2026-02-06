@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description="Remove unused binaries from global aqua config file"
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/env $SHELL -c "{{ _aqua_bin_path.stdout }} vacuum {{ aqua_vacuum_args }}"
+
+[Install]
+WantedBy=multi-user.target

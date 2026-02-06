@@ -199,3 +199,39 @@
         scope: user
         state: started
         enabled: true
+
+- name: "Enable aqua vacuum systemd timer"
+  become: true
+  become_user: "{{ item.username }}"
+  when:
+    - aqua_vacuum | bool
+    - aqua_vacuum_time != "never"
+  block:
+    - name: Create systemd user directory
+      ansible.builtin.file:
+        path: "~/.config/systemd/user/"
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Add aqua vacuum service
+      ansible.builtin.template:
+        src: aqua-vacuum.service
+        dest: "~/.config/systemd/user/aqua-vacuum.service"
+        mode: u=rw,g=r,o=r
+      register: _service_file
+
+    - name: Add aqua vacuum systemd timer
+      ansible.builtin.template:
+        src: aqua-vacuum.timer
+        dest: "~/.config/systemd/user/aqua-vacuum.timer"
+        mode: u=rw,g=r,o=r
+      register: _timer_file
+
+    - name: Start and enable aqua vacuum systemd timer
+      ansible.builtin.systemd:
+        name: aqua-vacuum.timer
+        daemon_reload: >-
+          {{ true if _service_file is changed or _timer_file is changed else false }}
+        scope: user
+        state: started
+        enabled: true

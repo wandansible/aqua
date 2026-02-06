@@ -21,4 +21,9 @@ aqua_global_install_args: "--only-link"
 aqua_global_install_time: "daily"
 aqua_global_install_randomized_delay: "6h"
 
+aqua_vacuum: "false"
+aqua_vacuum_args: ""
+aqua_vacuum_time: "daily"
+aqua_vacuum_randomized_delay: "6h"
+
 aqua_users: []
