@@ -90,11 +90,6 @@ Options (= indicates it is required):
           = username  Name of the user account
             type: str
 
-- aqua_vacuum  If true, remove unused binaries from global aqua
-                config file
-          default: 'false'
-          type: str
-
 - aqua_vacuum_args  Extra arguments to use when removing unused
                      binaries from global aqua config file
           default: ''
@@ -110,7 +105,7 @@ Options (= indicates it is required):
                      aqua config file, accepts a systemd time, see
                      https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html,
                      or "never"
-          default: daily
+          default: never
           type: str
 
 - aqua_version  Version to install (use "latest" for the latest

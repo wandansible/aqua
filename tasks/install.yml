@@ -203,9 +203,7 @@
 - name: "Enable aqua vacuum systemd timer"
   become: true
   become_user: "{{ item.username }}"
-  when:
-    - aqua_vacuum | bool
-    - aqua_vacuum_time != "never"
+  when: aqua_vacuum_time != "never"
   block:
     - name: Create systemd user directory
       ansible.builtin.file:
