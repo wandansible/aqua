@@ -24,6 +24,11 @@ argument_specs:
         type: str
         default: ""
 
+      aqua_archive_extension:
+        description: File extension for the aqua package archive
+        type: str
+        default: tar.gz
+
       aqua_github_checksum_filename:
         description: Filename for the aqua package checksums file on github
         type: str

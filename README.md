@@ -17,6 +17,10 @@ Options (= indicates it is required):
           default: null
           type: dict
 
+- aqua_archive_extension  File extension for the aqua package archive
+          default: tar.gz
+          type: str
+
 - aqua_checksum_type  The aqua package checksum type
           default: sha256
           type: str

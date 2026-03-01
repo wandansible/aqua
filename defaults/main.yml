@@ -6,6 +6,7 @@ aqua_arch_map:
 aqua_github_org: aquaproj
 aqua_github_repo: aqua
 aqua_github_token: ""
+aqua_archive_extension: "tar.gz"
 aqua_github_checksum_filename: checksums.txt
 aqua_checksum_type: sha256
 
