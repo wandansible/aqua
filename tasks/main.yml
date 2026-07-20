@@ -4,4 +4,5 @@
     file: install.yml
   loop: "{{ aqua_users }}"
   loop_control:
-    label: "{{ item.username }}"
+    loop_var: "user"
+    label: "{{ user.username }}"

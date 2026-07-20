@@ -29,7 +29,7 @@ argument_specs:
         type: str
         default: tar.gz
 
-      aqua_github_checksum_filename:
+      aqua_checksum_filename:
         description: Filename for the aqua package checksums file on github
         type: str
         default: checksums.txt
@@ -38,6 +38,22 @@ argument_specs:
         description: The aqua package checksum type
         type: str
         default: sha256
+
+      aqua_signature_filename:
+        description: Filename for the aqua checksums signature file on github
+        type: str
+        default: checksums.txt.sigstore.json
+
+      aqua_signature_oidc_issuer:
+        description: OIDC issuer for the checksums signature file
+        type: str
+        default: https://token.actions.githubusercontent.com
+
+      aqua_signature_identity_regexp:
+        description: Identity regular expression for the checksums signature file
+        type: str
+        default: >-
+          https://github\.com/suzuki-shunsuke/go-release-workflow/\.github/workflows/release\.yaml@.*
 
       aqua_version:
         description: Version to install (use "latest" for the latest version)

@@ -7,8 +7,12 @@ aqua_github_org: aquaproj
 aqua_github_repo: aqua
 aqua_github_token: ""
 aqua_archive_extension: "tar.gz"
-aqua_github_checksum_filename: checksums.txt
+aqua_checksum_filename: checksums.txt
 aqua_checksum_type: sha256
+aqua_signature_filename: checksums.txt.sigstore.json
+aqua_signature_oidc_issuer: "https://token.actions.githubusercontent.com"
+aqua_signature_identity_regexp: >-
+  https://github\.com/suzuki-shunsuke/go-release-workflow/\.github/workflows/release\.yaml@.*
 
 aqua_version: "latest"
 
