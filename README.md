@@ -21,13 +21,13 @@ Options (= indicates it is required):
           default: tar.gz
           type: str
 
-- aqua_checksum_type  The aqua package checksum type
-          default: sha256
+- aqua_checksum_filename  Filename for the aqua package checksums
+                           file on github
+          default: checksums.txt
           type: str
 
-- aqua_github_checksum_filename  Filename for the aqua package
-                                  checksums file on github
-          default: checksums.txt
+- aqua_checksum_type  The aqua package checksum type
+          default: sha256
           type: str
 
 - aqua_github_org  Name of organisation for aqua github repository

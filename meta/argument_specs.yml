@@ -29,7 +29,7 @@ argument_specs:
         type: str
         default: tar.gz
 
-      aqua_github_checksum_filename:
+      aqua_checksum_filename:
         description: Filename for the aqua package checksums file on github
         type: str
         default: checksums.txt

@@ -61,7 +61,7 @@
     _aqua_archive_filename: "{{ _aqua_archive_url | split('/') | last }}"
     _aqua_checksum_url: >-
       {{ hostvars["localhost"].ansible_facts.github_aqua_release_info.assets
-         | selectattr("name", "search", aqua_github_checksum_filename+"$")
+         | selectattr("name", "search", aqua_checksum_filename+"$")
          | map(attribute='browser_download_url')
          | first
          | default(None) }}
