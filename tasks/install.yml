@@ -5,14 +5,14 @@
   changed_when: false
   register: _aqua_bin_path
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
 
 - name: Check for aqua binary
   ansible.builtin.stat:
     path: "{{ _aqua_bin_path.stdout }}"
   register: _aqua_bin
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
 
 - name: "Get GitHub release information"
   run_once: true
@@ -47,7 +47,7 @@
 
 - name: "Install aqua"
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
   vars:
     _aqua_archive_url: >-
       {{ hostvars["localhost"].ansible_facts.github_aqua_release_info.assets
@@ -118,21 +118,21 @@
   changed_when: false
   register: _shell_cmd
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
 
 - name: "Install binaries from global aqua config file"
   ansible.builtin.shell:
     cmd: "{{ _aqua_bin_path.stdout }} install --all {{ aqua_global_install_args }}"
     executable: "{{ _shell_cmd.stdout }}"
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
   register: _aqua_global_install
   changed_when: "_aqua_global_install.stderr | length >= 1"
   when: aqua_global_install | bool
 
 - name: "Enable aqua update systemd timer"
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
   when: aqua_update_time != "never"
   block:
     - name: Create systemd user directory
@@ -185,7 +185,7 @@
 
 - name: "Enable aqua global install systemd timer"
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
   when:
     - aqua_global_install | bool
     - aqua_global_install_time != "never"
@@ -240,7 +240,7 @@
 
 - name: "Enable aqua vacuum systemd timer"
   become: true
-  become_user: "{{ item.username }}"
+  become_user: "{{ user.username }}"
   when: aqua_vacuum_time != "never"
   block:
     - name: Create systemd user directory
