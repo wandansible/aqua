@@ -72,6 +72,21 @@ Options (= indicates it is required):
           default: true
           type: bool
 
+- aqua_signature_filename  Filename for the aqua checksums signature
+                            file on github
+          default: checksums.txt.sigstore.json
+          type: str
+
+- aqua_signature_identity_regexp  Identity regular expression for the
+                                   checksums signature file
+          default: https://github\.com/suzuki-shunsuke/go-release-workflow/\.github/workflows/release\.yaml@.*
+          type: str
+
+- aqua_signature_oidc_issuer  OIDC issuer for the checksums signature
+                               file
+          default: https://token.actions.githubusercontent.com
+          type: str
+
 - aqua_update_randomized_delay  Delay the aqua update timer by a
                                  random time up to this value or empty
                                  string for no delay
