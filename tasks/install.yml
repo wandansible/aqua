@@ -144,6 +144,8 @@
       ansible.builtin.command:
         cmd: >-
           {{ _aqua_tmp_dir.path }}/aqua update-aqua {{ aqua_version if aqua_version != 'latest' }}
+      environment:
+        AQUA_GITHUB_TOKEN: "{{ aqua_github_token }}"
       register: _aqua_update_aqua
       changed_when: "_aqua_update_aqua.stderr | length >= 1"
 
@@ -188,6 +190,7 @@
         dest: "~/.config/systemd/user/aqua-update.service"
         mode: u=rw,g=r,o=r
       register: _service_file
+      no_log: true
 
     - name: Add aqua update systemd timer
       ansible.builtin.template:
