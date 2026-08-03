@@ -6,6 +6,9 @@ Description="Update aqua"
 [Service]
 Type=oneshot
 ExecStart={{ _aqua_bin_path.stdout }} update-aqua {{ aqua_version if aqua_version != 'latest' }}
+{% if aqua_github_token != "" %}
+Environment="AQUA_GITHUB_TOKEN={{ aqua_github_token }}"
+{% endif %}
 
 [Install]
 WantedBy=multi-user.target
