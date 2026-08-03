@@ -188,7 +188,7 @@
       ansible.builtin.template:
         src: aqua-update.service
         dest: "~/.config/systemd/user/aqua-update.service"
-        mode: u=rw,g=r,o=r
+        mode: u=rw,g=r,o=
       register: _service_file
       no_log: true
 
