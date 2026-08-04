@@ -71,12 +71,6 @@
          | map(attribute="browser_download_url")
          | first
          | default(None) }}
-    _aqua_archive_checksums: >-
-      {{ lookup("url", _aqua_checksum_url, split_lines=False) }}
-    _aqua_archive_checksum: >-
-      {{ _aqua_archive_checksums.splitlines()
-         | select("search", "\s"+_aqua_archive_filename+"$")
-         | first | default("") | split(" ") | first | default(None) }}
   when:
     - aqua_install | bool
     - not _aqua_bin.stat.exists
@@ -86,6 +80,14 @@
         state: directory
         suffix: aqua
       register: _aqua_tmp_dir
+
+    - name: Get archive checksums
+      ansible.builtin.uri:
+        url: "{{ _aqua_checksum_url }}"
+        return_content: true
+      register: _aqua_archive_checksums
+      retries: 6
+      delay: 15
 
     - name: Check for cosign CLI tool
       ansible.builtin.command:
@@ -116,11 +118,16 @@
                      --certificate-oidc-issuer '{{ aqua_signature_oidc_issuer }}'
                      --certificate-identity-regexp '{{ aqua_signature_identity_regexp }}'
                      -
-            stdin: "{{ _aqua_archive_checksums }}"
+            stdin: "{{ _aqua_archive_checksums.content }}"
             stdin_add_newline: false
           changed_when: false
 
     - name: "Download archive"
+      vars:
+        _aqua_archive_checksum: >-
+          {{ _aqua_archive_checksums.content.splitlines()
+             | select('search', "\s"+_aqua_archive_filename+"$")
+             | first | default('') | split(' ') | first | default(None) }}
       ansible.builtin.get_url:
         url: "{{ _aqua_archive_url }}"
         dest: "{{ _aqua_tmp_dir.path }}/{{ _aqua_archive_filename }}"
